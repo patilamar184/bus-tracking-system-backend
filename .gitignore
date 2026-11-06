@@ -1,0 +1,6 @@
+.env
+.venv
+app/__pycache__
+app/routers/__pycache__
+school_bus.db
+
