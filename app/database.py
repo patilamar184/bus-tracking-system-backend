@@ -1,3 +1,4 @@
+
 import os
 
 from dotenv import load_dotenv
@@ -8,16 +9,22 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./school_bus.db")
 
-connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+connect_args = (
+    {"check_same_thread": False}
+    if DATABASE_URL.startswith("sqlite")
+    else {}
+)
+
 engine = create_engine(DATABASE_URL, connect_args=connect_args)
 
 
-@event.listens_for(engine, "connect")
-def _enable_sqlite_foreign_keys(dbapi_connection, _record):
-    # SQLite ignores foreign keys unless this is switched on for every connection.
-    cursor = dbapi_connection.cursor()
-    cursor.execute("PRAGMA foreign_keys=ON")
-    cursor.close()
+if DATABASE_URL.startswith("sqlite"):
+
+    @event.listens_for(engine, "connect")
+    def _enable_sqlite_foreign_keys(dbapi_connection, _record):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
 
 
 SessionLocal = sessionmaker(bind=engine, autoflush=False)
